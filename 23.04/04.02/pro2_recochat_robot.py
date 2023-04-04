@@ -1,46 +1,44 @@
 # 1차 실패 - 1시간 3분 소요
-# 12: 57 - 1:05 (다른 사람 풀이 보는 중이나 아직 해결 못함)
-# dfs / bfs => 내가 생각한 종료 조건 : 이미 갔던 방향이거나 / G면 종료 (여기까진 맞음)
+# 2차 성공- 23분 소요 (다른 사람 풀이 보고 풂)
+# bfs => 이미 갔던 방향이면 탐색 중단 + G면 bfs니까 바로 curDist return (여기까진 맞음)
+# recursion 잘 못 쓰겠으면 얌전히 bfs는 queue, dfs는 stack쓰자
+from collections import deque
 
 directionX = [1, 0, -1, 0]
 directionY = [0, -1, 0, 1]
-answerList = []
 
 
-def dfs(depth, directionIdx, curX, curY, board):
-    if board[curX][curY] == "G":
-        answerList.append(depth)
-        return
-    # 맨끝까지 이동
-    while True:
-        if curX + directionX[directionIdx] < 0 or curX + directionX[directionIdx] > len(board) - 1 or curY + directionY[directionIdx] < 0 or curY + directionY[directionIdx] > len(board[0]) - 1 or board[curX + directionX[directionIdx]][curY + directionY[directionIdx]] == "D":
+def solution(board):
+    distanceList = [[12345678] * len(board[0]) for _ in range(len(board))]
+    queue = deque()
+
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            if board[i][j] == "R":
+                queue.append([i, j, 0])
+                distanceList[i][j] = 0
+        if queue:
             break
-        curX += directionX[directionIdx]
-        curY += directionY[directionIdx]
-    if board[curX][curY] == "X":
-        return
 
-    board[curX][curY] = "X"
-    dfs(depth + 1, 0, curX, curY, board)
-    dfs(depth + 1, 1, curX, curY, board)
-    dfs(depth + 1, 2, curX, curY, board)
-    dfs(depth + 1, 3, curX, curY, board)
+    # bfs - queue
+    while queue:
+        curX, curY, curDist = queue.popleft()
+        if board[curX][curY] == "G":
+            return curDist
 
+        # 4방향 탐색 => while로 각 방향마다 끝까지 이동
+        for d in range(4):
+            nextX, nextY = curX, curY
 
-def solution(strBoard):
-    startX, startY = 0, 0
-    board = [['.']*len(strBoard[0]) for _ in range(len(strBoard))]
+            while 0 <= nextX + directionX[d] < len(board) and 0 <= nextY + directionY[d] < len(board[0]) and \
+                board[nextX + directionX[d]][nextY + directionY[d]] != "D":
+                nextX += directionX[d]
+                nextY += directionY[d]
 
-    for i in range(len(strBoard)):
-        for j in range(len(strBoard[0])):
-            if strBoard[i][j] == "R":
-                startX, startY = i, j
-            board[i][j] = strBoard[i][j]
-
-    dfs(0, 0, startX, startY, board)
-    dfs(0, 1, startX, startY, board)
-    dfs(0, 2, startX, startY, board)
-    dfs(0, 3, startX, startY, board)
-    return min(answerList) - 1 if len(answerList) > 0 else - 1
+            # nextX, nextY를 방문한 적 없고, 거리가 적으면 queue에 append & distanceList 갱신
+            if distanceList[nextX][nextY] > curDist + 1:
+                distanceList[nextX][nextY] = curDist + 1
+                queue.append([nextX, nextY, distanceList[nextX][nextY]])
+    return -1
 
 print(solution(["...D..R", ".D.G...", "....D.D", "D....D.", "..D...."]))
