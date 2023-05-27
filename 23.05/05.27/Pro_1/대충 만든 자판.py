@@ -8,21 +8,17 @@ keyCountDict = dict()
 def solution(keymap, targets):
     for key in keymap:
         for i in range(len(key)):
-            if key[i] in keyCountDict.keys():
-                keyCountDict[key[i]] = min(i + 1, keyCountDict[key[i]])
-            else:
-                keyCountDict[key[i]] = i + 1
+            keyCountDict[key[i]] = min(i + 1, keyCountDict[key[i]]) if key[i] in keyCountDict else i+1
 
     answer = []
     for target in targets:
         count = 0
-        flag = True
         for letter in target:
             if letter in keyCountDict.keys():
                 count += keyCountDict[letter]
             else:
-                flag = False
+                count = -1
                 break
-        answer.append(-1 if not flag else count)
+        answer.append(count)
 
     return answer
