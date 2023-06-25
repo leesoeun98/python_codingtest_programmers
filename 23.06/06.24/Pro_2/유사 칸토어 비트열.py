@@ -3,16 +3,20 @@
 # 분할정복 + 누적합으로 4^(n-1) 그룹으로 나눔, 이때 각 그룹의 길이 및 index는 5^(n-1) 몫과 나머지로 구하기
 # 0의 위치에 제발 주의해서 예외처리 하기
 def solution(n, l, r):
-    answer = "1"
+    def calc(value, n):
+        sum_v = 0
+        while n > 0:
+            share = value // (5 ** (n - 1))
+            remainder = value % (5 ** (n - 1))
 
-    for i in range(n):
-        new_answer = ""
-        for letter in answer:
-            if letter == "1":
-                new_answer += "11011"
-            elif letter == "0":
-                new_answer += "00000"
-        answer = new_answer
-    return answer[l - 1:r].count("1")
+            if 1 <= share <= 2:
+                sum_v += share * 4 ** (n - 1)
+            elif 3 <= share <= 5:
+                sum_v += (share - 1) * 4 ** (n - 1)
+            if share == 2:
+                break
+            value = remainder
+            n -= 1
+        return sum_v
 
-
+    return calc(r, n) - calc(l - 1, n)
